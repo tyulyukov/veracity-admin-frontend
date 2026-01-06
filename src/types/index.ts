@@ -32,6 +32,9 @@ export interface User {
   createdAt: string;
   lastActivityAt: string | null;
   interests: Interest[];
+  totalConnections?: number;
+  pendingSentCount?: number;
+  pendingReceivedCount?: number;
 }
 
 export interface UsersQueryParams {

@@ -34,6 +34,7 @@ const statusConfig: Record<UserStatus, { label: string; variant: 'default' | 'se
   inactive: { label: 'Inactive', variant: 'destructive', icon: XCircle },
 };
 
+
 const roleConfig: Record<UserRole, { label: string }> = {
   standard_user: { label: 'User' },
   speaker: { label: 'Speaker' },
@@ -131,6 +132,27 @@ export function UsersPage() {
         <span className="text-sm text-muted-foreground capitalize">
           {roleConfig[row.original.role]?.label ?? row.original.role}
         </span>
+      ),
+    },
+    {
+      id: 'connections',
+      header: 'Connections',
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-emerald-500">
+            {row.original.totalConnections ?? 0}
+          </span>
+          {(row.original.pendingSentCount ?? 0) > 0 && (
+            <Badge variant="secondary" className="bg-amber-500/10 text-amber-500 text-xs">
+              {row.original.pendingSentCount} sent
+            </Badge>
+          )}
+          {(row.original.pendingReceivedCount ?? 0) > 0 && (
+            <Badge variant="secondary" className="bg-blue-500/10 text-blue-400 text-xs">
+              {row.original.pendingReceivedCount} received
+            </Badge>
+          )}
+        </div>
       ),
     },
     {

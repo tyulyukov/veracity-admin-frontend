@@ -15,6 +15,7 @@ const statusConfig: Record<UserStatus, { label: string; variant: 'default' | 'se
   inactive: { label: 'Inactive', variant: 'destructive', icon: XCircle },
 };
 
+
 const roleConfig: Record<UserRole, { label: string }> = {
   standard_user: { label: 'User' },
   speaker: { label: 'Speaker' },
@@ -176,6 +177,30 @@ export function UserDetailPage() {
                 <span className="text-foreground">{user.position}</span>
               </div>
             )}
+          </div>
+
+          <div className="mb-8">
+            <h3 className="text-sm font-medium text-foreground mb-3">Connection Statistics</h3>
+            <div className="grid sm:grid-cols-3 gap-3">
+              <div className="bg-muted/40 border border-border rounded-lg p-4">
+                <div className="text-2xl font-bold text-emerald-500 mb-1">
+                  {user.totalConnections ?? 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Total Connections</div>
+              </div>
+              <div className="bg-muted/40 border border-border rounded-lg p-4">
+                <div className="text-2xl font-bold text-amber-500 mb-1">
+                  {user.pendingSentCount ?? 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Pending Sent</div>
+              </div>
+              <div className="bg-muted/40 border border-border rounded-lg p-4">
+                <div className="text-2xl font-bold text-blue-400 mb-1">
+                  {user.pendingReceivedCount ?? 0}
+                </div>
+                <div className="text-xs text-muted-foreground">Pending Received</div>
+              </div>
+            </div>
           </div>
 
           {user.shortDescription && (
