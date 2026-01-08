@@ -84,5 +84,36 @@ export interface ApiError {
   statusCode: number;
 }
 
+export type EventRelationType = 'created' | 'registered';
+
+export interface UserEventRelation {
+  userId: string;
+  eventRelationType: EventRelationType;
+  eventId: string;
+  name: string;
+  isOnline: boolean;
+  eventDate: string;
+  location: string | null;
+  link: string | null;
+  description: string | null;
+  imageUrls: string[];
+  tags: string[];
+  limitParticipants: number | null;
+  participantCount: number;
+  createdAt: string;
+  registrationComment: string | null;
+  registrationCreatedAt: string | null;
+}
+
+export interface EventsQueryParams {
+  offset?: number;
+  limit?: number;
+}
+
+export interface PaginatedEventsResponse {
+  events: UserEventRelation[];
+  total: number;
+}
+
 export const STORAGE_BASE_URL = 'https://storage.veracity.tyulyukov.com';
 

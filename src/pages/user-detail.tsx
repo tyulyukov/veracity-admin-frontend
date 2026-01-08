@@ -3,7 +3,7 @@ import { useUser, useUpdateUserStatus, useUpdateUserRole } from '@/hooks/use-adm
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Calendar, Mail, Briefcase, Loader2, CheckCircle, XCircle, Clock, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Calendar, Mail, Briefcase, Loader2, CheckCircle, XCircle, Clock, ChevronDown, CalendarDays } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
 import type { UserStatus, UserRole } from '@/types';
@@ -73,13 +73,21 @@ export function UserDetailPage() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Link
-        to="/users"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to users
-      </Link>
+      <div className="flex items-center justify-between mb-8">
+        <Link
+          to="/users"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to users
+        </Link>
+        <Button variant="outline" size="sm" asChild>
+          <Link to={`/users/${userId}/events`}>
+            <CalendarDays className="w-4 h-4 mr-2" />
+            View Events
+          </Link>
+        </Button>
+      </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         <div className="h-24 bg-gradient-to-r from-primary/20 to-primary/5" />

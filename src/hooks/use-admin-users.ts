@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as adminUsersApi from '@/api/admin-users.api';
-import type { UsersQueryParams, UpdateUserStatusPayload, UpdateUserRolePayload } from '@/types';
+import type { UsersQueryParams, UpdateUserStatusPayload, UpdateUserRolePayload, EventsQueryParams } from '@/types';
 
 export function useUsers(params: UsersQueryParams = {}) {
   return useQuery({
@@ -40,6 +40,14 @@ export function useUpdateUserRole() {
       queryClient.invalidateQueries({ queryKey: ['adminUsers'] });
       queryClient.invalidateQueries({ queryKey: ['adminUser', userId] });
     },
+  });
+}
+
+export function useUserEvents(userId: string | undefined, params: EventsQueryParams = {}) {
+  return useQuery({
+    queryKey: ['adminUserEvents', userId, params],
+    queryFn: () => adminUsersApi.getUserEvents(userId!, params),
+    enabled: !!userId,
   });
 }
 

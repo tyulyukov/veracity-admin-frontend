@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/login';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { UserDetailPage } from '@/pages/user-detail';
+import { UserEventsPage } from '@/pages/user-events';
 import { ModeratorsPage } from '@/pages/moderators';
 
 export const router = createBrowserRouter([
@@ -34,6 +35,10 @@ export const router = createBrowserRouter([
           {
             path: 'users/:userId',
             element: <UserDetailPage />,
+          },
+          {
+            path: 'users/:userId/events',
+            element: <UserEventsPage />,
           },
         ],
       },

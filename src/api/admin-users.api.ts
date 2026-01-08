@@ -5,6 +5,8 @@ import type {
   PaginatedUsersResponse,
   UpdateUserStatusPayload,
   UpdateUserRolePayload,
+  EventsQueryParams,
+  PaginatedEventsResponse,
 } from '@/types';
 
 export async function getUsers(params: UsersQueryParams = {}): Promise<PaginatedUsersResponse> {
@@ -28,5 +30,14 @@ export async function updateUserStatus(userId: string, payload: UpdateUserStatus
 
 export async function updateUserRole(userId: string, payload: UpdateUserRolePayload): Promise<void> {
   return apiPatch<void, UpdateUserRolePayload>(`/admin/users/${userId}/role`, payload);
+}
+
+export async function getUserEvents(userId: string, params: EventsQueryParams = {}): Promise<PaginatedEventsResponse> {
+  const searchParams = new URLSearchParams();
+  if (params.offset !== undefined) searchParams.set('offset', String(params.offset));
+  if (params.limit !== undefined) searchParams.set('limit', String(params.limit));
+
+  const query = searchParams.toString();
+  return apiGet<PaginatedEventsResponse>(`/admin/users/${userId}/events${query ? `?${query}` : ''}`);
 }
 
