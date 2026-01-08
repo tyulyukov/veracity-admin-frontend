@@ -1,30 +1,207 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router';
-import { type ColumnDef } from '@tanstack/react-table';
 import { useUserEvents, useUser } from '@/hooks/use-admin-users';
-import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, Calendar, MapPin, Link as LinkIcon, Users } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { ArrowLeft, Loader2, ChevronLeft, ChevronRight, Calendar, MapPin, Link as LinkIcon, Users, MessageSquare, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { UserEventRelation, EventRelationType } from '@/types';
 
 const PAGE_SIZE = 10;
 
-const relationTypeConfig: Record<EventRelationType, { label: string; className: string }> = {
-  created: { label: 'Created', className: 'bg-primary/10 text-primary' },
-  registered: { label: 'Registered', className: 'bg-blue-500/10 text-blue-400' },
+const relationTypeConfig: Record<EventRelationType, { label: string; className: string; bgClassName: string }> = {
+  created: { label: 'Created by User', className: 'bg-primary/10 text-primary border-primary/20', bgClassName: 'bg-primary/5' },
+  registered: { label: 'Registered to Attend', className: 'bg-blue-500/10 text-blue-400 border-blue-500/20', bgClassName: 'bg-blue-500/5' },
 };
+
+function EventCard({ event, isExpanded, onToggle }: { event: UserEventRelation; isExpanded: boolean; onToggle: () => void }) {
+  const config = relationTypeConfig[event.eventRelationType];
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
+
+  const stripHtmlTags = (html: string) => {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
+  return (
+    <Card className={cn('overflow-hidden transition-all', config.bgClassName)}>
+      <div className="p-6">
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className={cn('border', config.className)}>
+                {config.label}
+              </Badge>
+              {event.isOnline && (
+                <Badge variant="secondary" className="bg-muted/50 text-muted-foreground">
+                  <LinkIcon className="w-3 h-3 mr-1" />
+                  Online
+                </Badge>
+              )}
+            </div>
+            <h3 className="font-display text-xl font-bold text-foreground mb-1">
+              {event.name}
+            </h3>
+          </div>
+        </div>
+
+        <div className="grid sm:grid-cols-2 gap-4 mb-4">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span>{formatDate(event.eventDate)}</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Users className="w-4 h-4 text-emerald-500" />
+            <span className="font-medium text-foreground">
+              {event.participantCount}
+              {event.limitParticipants && (
+                <span className="text-muted-foreground">/{event.limitParticipants}</span>
+              )}
+            </span>
+            <span className="text-muted-foreground/70">participants</span>
+          </div>
+
+          {!event.isOnline && event.location && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <MapPin className="w-4 h-4 text-blue-400" />
+              <span className="truncate">{event.location}</span>
+            </div>
+          )}
+
+          {event.isOnline && event.link && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <LinkIcon className="w-4 h-4 text-blue-400" />
+              <a
+                href={event.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline truncate"
+              >
+                {event.link}
+              </a>
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            <span>Created {new Date(event.createdAt).toLocaleDateString()}</span>
+          </div>
+        </div>
+
+        {event.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {event.tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
+
+        {event.eventRelationType === 'registered' && (event.registrationComment || event.registrationCreatedAt) && (
+          <>
+            <Separator className="my-4" />
+            <div className="bg-blue-500/5 border border-blue-500/10 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <MessageSquare className="w-4 h-4 text-blue-400 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium text-blue-400 mb-1">Registration Info</p>
+                  {event.registrationCreatedAt && (
+                    <p className="text-xs text-muted-foreground mb-1">
+                      Registered on {new Date(event.registrationCreatedAt).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  )}
+                  {event.registrationComment && (
+                    <p className="text-sm text-foreground italic">"{event.registrationComment}"</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {event.description && (
+          <>
+            <Separator className="my-4" />
+            <div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggle}
+                className="mb-2 h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+              >
+                {isExpanded ? (
+                  <>
+                    <ChevronUp className="w-4 h-4 mr-1" />
+                    Hide Description
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4 mr-1" />
+                    Show Description
+                  </>
+                )}
+              </Button>
+
+              {isExpanded && (
+                <div
+                  className="prose prose-invert prose-sm max-w-none text-muted-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                  dangerouslySetInnerHTML={{ __html: event.description }}
+                />
+              )}
+              {!isExpanded && (
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {stripHtmlTags(event.description)}
+                </p>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </Card>
+  );
+}
 
 export function UserEventsPage() {
   const { userId } = useParams<{ userId: string }>();
   const [page, setPage] = useState(0);
+  const [expandedEvents, setExpandedEvents] = useState<Set<string>>(new Set());
 
   const { data: user, isLoading: isLoadingUser } = useUser(userId);
   const { data, isLoading } = useUserEvents(userId, {
     offset: page * PAGE_SIZE,
     limit: PAGE_SIZE,
   });
+
+  const toggleExpanded = (eventId: string) => {
+    setExpandedEvents((prev) => {
+      const next = new Set(prev);
+      if (next.has(eventId)) {
+        next.delete(eventId);
+      } else {
+        next.add(eventId);
+      }
+      return next;
+    });
+  };
 
   if (isLoadingUser) {
     return (
@@ -52,137 +229,10 @@ export function UserEventsPage() {
     );
   }
 
-  const columns: ColumnDef<UserEventRelation>[] = [
-    {
-      accessorKey: 'name',
-      header: 'Event Name',
-      cell: ({ row }) => (
-        <div className="min-w-0">
-          <p className="font-medium text-foreground truncate">{row.original.name}</p>
-          {row.original.description && (
-            <p className="text-xs text-muted-foreground truncate mt-0.5 max-w-md">
-              {row.original.description}
-            </p>
-          )}
-        </div>
-      ),
-    },
-    {
-      accessorKey: 'eventRelationType',
-      header: 'Type',
-      cell: ({ row }) => {
-        const config = relationTypeConfig[row.original.eventRelationType];
-        return (
-          <Badge className={config.className}>
-            {config.label}
-          </Badge>
-        );
-      },
-    },
-    {
-      accessorKey: 'eventDate',
-      header: 'Event Date',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="w-4 h-4" />
-          {new Date(row.original.eventDate).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-          })}
-        </div>
-      ),
-    },
-    {
-      id: 'location',
-      header: 'Location',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          {row.original.isOnline ? (
-            <>
-              <LinkIcon className="w-4 h-4" />
-              <span>Online</span>
-            </>
-          ) : row.original.location ? (
-            <>
-              <MapPin className="w-4 h-4" />
-              <span className="truncate max-w-[200px]">{row.original.location}</span>
-            </>
-          ) : (
-            <span className="text-muted-foreground/50">N/A</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      id: 'participants',
-      header: 'Participants',
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Users className="w-4 h-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">
-            {row.original.participantCount}
-            {row.original.limitParticipants && (
-              <span className="text-muted-foreground">/{row.original.limitParticipants}</span>
-            )}
-          </span>
-        </div>
-      ),
-    },
-    {
-      id: 'tags',
-      header: 'Tags',
-      cell: ({ row }) => (
-        <div className="flex flex-wrap gap-1 max-w-xs">
-          {row.original.tags.length > 0 ? (
-            row.original.tags.slice(0, 3).map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-xs">
-                {tag}
-              </Badge>
-            ))
-          ) : (
-            <span className="text-xs text-muted-foreground/50">No tags</span>
-          )}
-          {row.original.tags.length > 3 && (
-            <Badge variant="secondary" className="text-xs">
-              +{row.original.tags.length - 3}
-            </Badge>
-          )}
-        </div>
-      ),
-    },
-    {
-      id: 'registrationInfo',
-      header: 'Registration',
-      cell: ({ row }) => {
-        if (row.original.eventRelationType === 'created') {
-          return <span className="text-xs text-muted-foreground/50">-</span>;
-        }
-        return (
-          <div className="text-xs text-muted-foreground">
-            {row.original.registrationCreatedAt && (
-              <div>
-                {new Date(row.original.registrationCreatedAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                })}
-              </div>
-            )}
-            {row.original.registrationComment && (
-              <div className="truncate max-w-[150px] text-muted-foreground/70 mt-0.5">
-                "{row.original.registrationComment}"
-              </div>
-            )}
-          </div>
-        );
-      },
-    },
-  ];
-
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <Link
         to={`/users/${userId}`}
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-8"
@@ -198,6 +248,11 @@ export function UserEventsPage() {
         <p className="text-muted-foreground">
           Events created and registered by this user
         </p>
+        {data && data.total > 0 && (
+          <p className="text-sm text-muted-foreground mt-1">
+            {data.total} {data.total === 1 ? 'event' : 'events'} total
+          </p>
+        )}
       </div>
 
       {isLoading ? (
@@ -208,6 +263,7 @@ export function UserEventsPage() {
         <>
           {data && data.events.length === 0 ? (
             <div className="bg-card border border-border rounded-xl p-12 text-center">
+              <Calendar className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
               <h2 className="font-display text-xl font-bold text-foreground mb-2">No events found</h2>
               <p className="text-muted-foreground">
                 This user has not created or registered for any events yet.
@@ -215,10 +271,19 @@ export function UserEventsPage() {
             </div>
           ) : (
             <>
-              <DataTable columns={columns} data={data?.events ?? []} />
+              <div className="space-y-4">
+                {data?.events.map((event) => (
+                  <EventCard
+                    key={event.eventId}
+                    event={event}
+                    isExpanded={expandedEvents.has(event.eventId)}
+                    onToggle={() => toggleExpanded(event.eventId)}
+                  />
+                ))}
+              </div>
 
               {data && data.total > PAGE_SIZE && (
-                <div className="mt-4 flex items-center justify-between">
+                <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 bg-card border border-border rounded-lg p-4">
                   <p className="text-sm text-muted-foreground">
                     Showing {page * PAGE_SIZE + 1} to {Math.min((page + 1) * PAGE_SIZE, data.total)} of{' '}
                     {data.total} events
@@ -230,10 +295,11 @@ export function UserEventsPage() {
                       onClick={() => setPage((p) => Math.max(0, p - 1))}
                       disabled={page === 0}
                     >
-                      <ChevronLeft className="w-4 h-4" />
+                      <ChevronLeft className="w-4 h-4 mr-1" />
+                      Previous
                     </Button>
-                    <span className="text-sm text-muted-foreground">
-                      Page {page + 1} of {totalPages}
+                    <span className="text-sm font-medium text-foreground px-2">
+                      {page + 1} / {totalPages}
                     </span>
                     <Button
                       variant="outline"
@@ -241,7 +307,8 @@ export function UserEventsPage() {
                       onClick={() => setPage((p) => p + 1)}
                       disabled={page >= totalPages - 1}
                     >
-                      <ChevronRight className="w-4 h-4" />
+                      Next
+                      <ChevronRight className="w-4 h-4 ml-1" />
                     </Button>
                   </div>
                 </div>
