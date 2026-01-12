@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LayoutDashboard, Users, Shield, LogOut, Menu, X, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Users, Tag, Shield, LogOut, Menu, X, ChevronDown, BarChart3 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -22,8 +22,12 @@ export function AdminLayout() {
   const navItems = [
     { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
     { path: '/users', icon: Users, label: 'Users' },
+    { path: '/interests', icon: Tag, label: 'Interests' },
     ...(admin?.role === 'owner'
-      ? [{ path: '/moderators', icon: Shield, label: 'Moderators' }]
+      ? [
+          { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+          { path: '/moderators', icon: Shield, label: 'Moderators' },
+        ]
       : []),
   ];
 

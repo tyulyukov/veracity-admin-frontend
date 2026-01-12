@@ -6,7 +6,9 @@ import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { UserDetailPage } from '@/pages/user-detail';
 import { UserEventsPage } from '@/pages/user-events';
+import { InterestsPage } from '@/pages/interests';
 import { ModeratorsPage } from '@/pages/moderators';
+import { AnalyticsPage } from '@/pages/analytics';
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +42,10 @@ export const router = createBrowserRouter([
             path: 'users/:userId/events',
             element: <UserEventsPage />,
           },
+          {
+            path: 'interests',
+            element: <InterestsPage />,
+          },
         ],
       },
     ],
@@ -53,6 +59,10 @@ export const router = createBrowserRouter([
           {
             path: 'moderators',
             element: <ModeratorsPage />,
+          },
+          {
+            path: 'analytics',
+            element: <AnalyticsPage />,
           },
         ],
       },

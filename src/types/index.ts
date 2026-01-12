@@ -18,6 +18,25 @@ export interface Interest {
   name: string;
 }
 
+export interface InterestsQueryParams {
+  offset?: number;
+  limit?: number;
+  search?: string;
+}
+
+export interface PaginatedInterestsResponse {
+  interests: Interest[];
+  total: number;
+}
+
+export interface CreateInterestPayload {
+  name: string;
+}
+
+export interface UpdateInterestPayload {
+  name: string;
+}
+
 export interface User {
   id: string;
   email: string;
@@ -115,5 +134,129 @@ export interface PaginatedEventsResponse {
   total: number;
 }
 
+export interface PostAuthor {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+  role: UserRole;
+}
+
+export interface Post {
+  id: string;
+  text: string;
+  imageUrls: string[];
+  likeCount: number;
+  commentCount: number;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+  author: PostAuthor;
+}
+
+export interface PostsQueryParams {
+  offset?: number;
+  limit?: number;
+}
+
+export interface PaginatedPostsResponse {
+  posts: Post[];
+  total: number;
+}
+
+export type ActivityType = 'post_created' | 'post_deleted' | 'liked' | 'commented';
+export type EntityType = 'post' | 'comment' | 'post_like';
+
+export interface UserActivity {
+  userId: string;
+  activityType: ActivityType;
+  entityId: string;
+  entityType: EntityType;
+  contentPreview: string | null;
+  activityAt: string;
+  imageUrls?: string[];
+}
+
+export interface ActivityQueryParams {
+  offset?: number;
+  limit?: number;
+}
+
+export interface PaginatedActivityResponse {
+  activities: UserActivity[];
+  total: number;
+}
+
 export const STORAGE_BASE_URL = 'https://storage.veracity.tyulyukov.com';
+
+export type AnalyticsInterval = 'day' | 'week' | 'month';
+
+export interface AnalyticsDateRangeParams {
+  startDate: string;
+  endDate: string;
+  interval?: AnalyticsInterval;
+}
+
+export interface AnalyticsOverview {
+  totalUsers: number;
+  activeUsers: number;
+  pendingUsers: number;
+  totalConnections: number;
+  pendingConnections: number;
+  avgConnectionsPerUser: number;
+  totalPosts: number;
+  totalLikes: number;
+  totalComments: number;
+  totalEvents: number;
+  totalEventRegistrations: number;
+  totalSpeakers: number;
+}
+
+export interface UserGrowthDataPoint {
+  date: string;
+  userCount: number;
+}
+
+export interface ConnectionActivityDataPoint {
+  date: string;
+  sentCount: number;
+  acceptedCount: number;
+  rejectedCount: number;
+}
+
+export interface ContentEngagementDataPoint {
+  date: string;
+  postsCount: number;
+  likesCount: number;
+  commentsCount: number;
+}
+
+export interface EventInterestDataPoint {
+  month: number;
+  registrationsCount: number;
+  eventsCount: number;
+}
+
+export interface TopInterest {
+  interestId: string;
+  interestName: string;
+  userCount: number;
+}
+
+export interface UserRetentionDataPoint {
+  date: string;
+  activeUsers: number;
+  totalUsers: number;
+  retentionRate: number;
+}
+
+export interface SpeakerAnalytics {
+  speakerId: string;
+  firstName: string;
+  lastName: string;
+  eventsCount: number;
+  totalRegistrations: number;
+  avgRegistrationsPerEvent: number;
+}
 
